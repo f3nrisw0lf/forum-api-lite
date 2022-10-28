@@ -4,9 +4,10 @@ const { Schema } = mongoose;
 
 const commentSchema = new Schema(
   {
-    createdBy: String,
-    dateCreated: Date,
+    user: { type: Schema.ObjectId, ref: 'User' },
+    text: String,
     post: { type: Schema.ObjectId, ref: 'Post' },
+    isHate: Boolean,
   },
   { timestamps: true }
 );

@@ -1,13 +1,12 @@
 import axios from 'axios';
 
-import Post from '../models/post.model.js';
+import Comment from '../models/comment.model.js';
 import User from '../models/user.model.js';
 
 const { HATE_SPEECH_API = 'http://localhost:5000' } = process.env;
 
-async function createPost(req, res) {
-  console.log(req.body);
-  const { username, text } = req.body;
+async function createComment(req, res) {
+  const { postId, text, username } = req.body;
 
   const user = await User.findOne({ username: username });
 
@@ -25,15 +24,14 @@ async function createPost(req, res) {
 
   const { is_hate_speech } = await isHateRequest.data;
 
-  const savePostQuery = new Post({
+  const createCommentQuery = new Comment({
     user: user._id,
-    content: text,
+    text: text,
+    post: postId,
     isHate: await is_hate_speech,
   }).save();
 
-  res.json(JSON.stringify(await savePostQuery));
+  return res.json(JSON.stringify(await createCommentQuery));
 }
 
-async function deletePost(req, res) {}
-
-export { createPost };
+export { createComment };
