@@ -1,23 +1,24 @@
 import express, { json } from 'express';
 import dotenv from 'dotenv';
-
-import postRoute from './src/routes/posts.routes.js';
-import commentRoute from './src/routes/comments.routes.js';
-
 dotenv.config();
-const { PORT = 8080 } = process.env;
+
+import postsRoute from './src/routes/posts.route.js';
+import commentsRoute from './src/routes/comments.route.js';
+import reportsRoute from './src/routes/reports.routes.js';
 
 const app = express();
+const { PORT = 8080 } = process.env;
 import DB_CONNECTION from './src/configs/db.config.js';
 
 app.use(json());
 
 app.get('/', (req, res) => {
-  res.json({ asdasdasd: 'ASDASD' });
+  res.json({ message: 'Welcome to The Forum API Lite' });
 });
 
-app.use('/posts/', postRoute);
-app.use('/comments/', commentRoute);
+app.use('/posts/', postsRoute);
+app.use('/comments/', commentsRoute);
+app.use('/reports/', reportsRoute);
 
 app.listen(PORT, () => {
   console.log(`Running in Port: http://localhost:${PORT}`);
