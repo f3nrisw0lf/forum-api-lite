@@ -1,20 +1,19 @@
 import axios from 'axios';
 
 import Comment from '../models/comment.model.js';
+import Post from '../models/post.model.js';
 import User from '../models/user.model.js';
+
+import { checkUserExists } from '../utils/helper.util.js';
 
 const { HATE_SPEECH_API = 'http://localhost:5000' } = process.env;
 
 async function createComment(req, res) {
-  const { postId, text, username } = req.body;
+  const { post, text, username } = req.body;
+  const userQuery = await User.findOne({ username: username });
+  const user = await checkUserExists(userQuery, username);
 
-  const user = await User.findOne({ username: username });
-
-  if (!user) {
-    const query = new User({ username });
-    query.save();
-  }
-
+  console.log(req.body);
   const isHateRequest = await axios.post(
     `${HATE_SPEECH_API}/single-hate-prediction`,
     {
@@ -27,11 +26,19 @@ async function createComment(req, res) {
   const createCommentQuery = new Comment({
     user: user._id,
     text: text,
-    post: postId,
+    post: post,
     isHate: await is_hate_speech,
-  }).save();
+  });
+  createCommentQuery.save();
 
-  return res.json(JSON.stringify(await createCommentQuery));
+  // Add the new Comment's _id to the Posts Comment Array
+  await Post.findByIdAndUpdate(post, {
+    $push: {
+      comments: createCommentQuery._id,
+    },
+  });
+
+  return res.json(JSON.stringify(createCommentQuery));
 }
 
 export { createComment };

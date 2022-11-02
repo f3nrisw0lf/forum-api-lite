@@ -1,7 +1,14 @@
 import { Router } from 'express';
-import { createPost } from '../controllers/post.controller.js';
+import {
+  createPost,
+  getPosts,
+  getPost,
+} from '../controllers/post.controller.js';
 
 const router = Router();
+
+router.get('/', getPosts);
+router.get('/:id', getPost);
 
 router.post('/', createPost);
 

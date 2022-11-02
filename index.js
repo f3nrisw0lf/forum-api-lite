@@ -1,16 +1,18 @@
 import express, { json } from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
 
 import postsRoute from './src/routes/posts.route.js';
 import commentsRoute from './src/routes/comments.route.js';
-import reportsRoute from './src/routes/reports.routes.js';
+import reportsRoute from './src/routes/reports.route.js';
 
 const app = express();
 const { PORT = 8080 } = process.env;
 import DB_CONNECTION from './src/configs/db.config.js';
 
 app.use(json());
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to The Forum API Lite' });

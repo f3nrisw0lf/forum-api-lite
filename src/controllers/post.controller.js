@@ -3,18 +3,15 @@ import axios from 'axios';
 import Post from '../models/post.model.js';
 import User from '../models/user.model.js';
 
+import { checkUserExists } from '../utils/helper.util.js';
+
 const { HATE_SPEECH_API = 'http://localhost:5000' } = process.env;
 
 async function createPost(req, res) {
-  console.log(req.body);
   const { username, text } = req.body;
 
-  const user = await User.findOne({ username: username });
-
-  if (!user) {
-    const query = new User({ username });
-    query.save();
-  }
+  const userQuery = await User.findOne({ username: username });
+  const user = await checkUserExists(userQuery, username);
 
   const isHateRequest = await axios.post(
     `${HATE_SPEECH_API}/single-hate-prediction`,
@@ -22,7 +19,6 @@ async function createPost(req, res) {
       text,
     }
   );
-
   const { is_hate_speech } = await isHateRequest.data;
 
   const savePostQuery = new Post({
@@ -31,9 +27,26 @@ async function createPost(req, res) {
     isHate: await is_hate_speech,
   }).save();
 
-  res.json(JSON.stringify(await savePostQuery));
+  res.json(await savePostQuery);
+}
+
+async function getPosts(req, res) {
+  const getPostsQuery = await Post.find()
+    .populate('user')
+    .populate({
+      path: 'comments',
+      populate: [{ path: 'user', model: 'User' }],
+    });
+  return res.json(getPostsQuery);
+}
+
+async function getPost(req, res) {
+  const { id } = req.params;
+  const getPostQuery = await Post.find({ _id: id }).populate('comments');
+
+  return res.json(getPostQuery);
 }
 
 async function deletePost(req, res) {}
 
-export { createPost };
+export { createPost, getPosts, getPost };
