@@ -33,10 +33,10 @@ async function createPost(req, res) {
   const savePostQuery = new Post({
     user: user._id,
     content: text,
-    isHate: (await data?.isHate) || 0,
+    isHate: (await data?.is_hate_speech) || 0,
   });
 
-  if (data) {
+  if (data?.is_hate_speech) {
     new Backlog({
       post: savePostQuery._id,
     }).save();

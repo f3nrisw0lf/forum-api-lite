@@ -30,14 +30,15 @@ async function createComment(req, res) {
     });
   }
 
+  console.log(await data);
   const createCommentQuery = new Comment({
     user: user._id,
     text: text,
     post: post,
-    isHate: (await data?.isHate) || 0,
+    isHate: (await data?.is_hate_speech) || 0,
   });
 
-  if (data) {
+  if (data?.is_hate_speech) {
     new Backlog({
       comment: createCommentQuery._id,
     }).save();
