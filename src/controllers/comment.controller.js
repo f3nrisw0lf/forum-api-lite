@@ -1,4 +1,6 @@
 import axios from 'axios';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import Backlog from '../models/backlog.model.js';
 import Comment from '../models/comment.model.js';
