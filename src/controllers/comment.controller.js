@@ -37,7 +37,7 @@ async function createComment(req, res) {
     isHate: (await data?.isHate) || 0,
   });
 
-  if (!isHateRequest.data) {
+  if (data) {
     new Backlog({
       comment: createCommentQuery._id,
     }).save();

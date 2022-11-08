@@ -36,7 +36,7 @@ async function createPost(req, res) {
     isHate: (await data?.isHate) || 0,
   });
 
-  if (!isHateRequest.data) {
+  if (data) {
     new Backlog({
       post: savePostQuery._id,
     }).save();
