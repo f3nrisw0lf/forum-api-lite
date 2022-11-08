@@ -11,4 +11,16 @@ async function checkUserExists(userQuery, username) {
   return userQuery;
 }
 
-export { checkUserExists };
+async function checkUsernameInRequest(req, res, next) {
+  const body = req.body;
+
+  if (!body.username) {
+    return res.status(400).json({
+      message: 'Username is required in every Post Request',
+    });
+  }
+
+  return next();
+}
+
+export { checkUserExists, checkUsernameInRequest };

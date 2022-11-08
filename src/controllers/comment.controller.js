@@ -13,7 +13,6 @@ async function createComment(req, res) {
   const userQuery = await User.findOne({ username: username });
   const user = await checkUserExists(userQuery, username);
 
-  console.log(req.body);
   const isHateRequest = await axios.post(
     `${HATE_SPEECH_API}/single-hate-prediction`,
     {
@@ -22,6 +21,12 @@ async function createComment(req, res) {
   );
 
   const { is_hate_speech } = await isHateRequest.data;
+
+  if (text.length === 0) {
+    return res.status(400).json({
+      message: 'Text is Required',
+    });
+  }
 
   const createCommentQuery = new Comment({
     user: user._id,

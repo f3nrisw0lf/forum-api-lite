@@ -21,6 +21,12 @@ async function createPost(req, res) {
   );
   const { is_hate_speech } = await isHateRequest.data;
 
+  if (text.length === 0) {
+    return res.status(400).json({
+      message: 'Text is Required',
+    });
+  }
+
   const savePostQuery = new Post({
     user: user._id,
     content: text,
@@ -32,6 +38,7 @@ async function createPost(req, res) {
 
 async function getPosts(req, res) {
   const getPostsQuery = await Post.find()
+    .sort([['createdAt', 'desc']])
     .populate('user')
     .populate({
       path: 'comments',
@@ -42,7 +49,13 @@ async function getPosts(req, res) {
 
 async function getPost(req, res) {
   const { id } = req.params;
-  const getPostQuery = await Post.find({ _id: id }).populate('comments');
+  const getPostQuery = await Post.find({ _id: id })
+    .sort([['createdAt', 'desc']])
+    .populate('user')
+    .populate({
+      path: 'comments',
+      populate: [{ path: 'user', model: 'User' }],
+    });
 
   return res.json(getPostQuery);
 }
