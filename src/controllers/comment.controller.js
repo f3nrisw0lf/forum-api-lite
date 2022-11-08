@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+import Backlog from '../models/backlog.model.js';
 import Comment from '../models/comment.model.js';
 import Post from '../models/post.model.js';
 import User from '../models/user.model.js';
@@ -13,14 +14,13 @@ async function createComment(req, res) {
   const userQuery = await User.findOne({ username: username });
   const user = await checkUserExists(userQuery, username);
 
-  const isHateRequest = await axios.post(
-    `${HATE_SPEECH_API}/single-hate-prediction`,
-    {
+  const isHateRequest = await axios
+    .post(`${HATE_SPEECH_API}/single-hate-prediction`, {
       text,
-    }
-  );
+    })
+    .catch((error) => error);
 
-  const { is_hate_speech } = await isHateRequest.data;
+  const data = await isHateRequest?.data;
 
   if (text.length === 0) {
     return res.status(400).json({
@@ -32,8 +32,14 @@ async function createComment(req, res) {
     user: user._id,
     text: text,
     post: post,
-    isHate: await is_hate_speech,
+    isHate: (await data?.isHate) || 0,
   });
+
+  if (!isHateRequest.data) {
+    new Backlog({
+      comment: createCommentQuery._id,
+    }).save();
+  }
   createCommentQuery.save();
 
   // Add the new Comment's _id to the Posts Comment Array

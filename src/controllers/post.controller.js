@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+import Backlog from '../models/backlog.model.js';
 import Post from '../models/post.model.js';
 import User from '../models/user.model.js';
 
@@ -13,13 +14,13 @@ async function createPost(req, res) {
   const userQuery = await User.findOne({ username: username });
   const user = await checkUserExists(userQuery, username);
 
-  const isHateRequest = await axios.post(
-    `${HATE_SPEECH_API}/single-hate-prediction`,
-    {
+  const isHateRequest = await axios
+    .post(`${HATE_SPEECH_API}/single-hate-prediction`, {
       text,
-    }
-  );
-  const { is_hate_speech } = await isHateRequest.data;
+    })
+    .catch((error) => error);
+
+  const data = await isHateRequest?.data;
 
   if (text.length === 0) {
     return res.status(400).json({
@@ -30,10 +31,17 @@ async function createPost(req, res) {
   const savePostQuery = new Post({
     user: user._id,
     content: text,
-    isHate: await is_hate_speech,
-  }).save();
+    isHate: (await data?.isHate) || 0,
+  });
 
-  res.json(await savePostQuery);
+  if (!isHateRequest.data) {
+    new Backlog({
+      post: savePostQuery._id,
+    }).save();
+  }
+
+  savePostQuery.save();
+  res.json(savePostQuery);
 }
 
 async function getPosts(req, res) {
