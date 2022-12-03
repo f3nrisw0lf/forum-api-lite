@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const { connect, connection } = mongoose;
-const { MONGO_URI = 'mongodb://localhost:27017/forum' } = process.env;
+const { MONGO_URI = 'mongodb://127.0.0.1:27017/forum' } = process.env;
 
 connect(MONGO_URI, {
   useUnifiedTopology: true,
